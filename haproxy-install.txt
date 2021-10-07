@@ -1,0 +1,22 @@
+sudo yum update -y
+sudo yum install gcc pcre-static pcre-devel openssl-devel -y
+(reboot)
+wget http://www.haproxy.org/download/2.4/src/haproxy-2.4.7.tar.gz -O haproxy.tar.gz
+tar xzvf haproxy.tar.gz
+cd haproxy-*/
+make TARGET=linux-glibc USE_PCRE=1 USE_OPENSSL=1 USE_ZLIB=1 USE_CRYPT_H=1 USE_LIBCRYPT=1
+make install
+sudo mkdir -p /etc/haproxy
+sudo mkdir -p /var/lib/haproxy
+sudo touch /var/lib/haproxy/stats
+sudo ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy
+sudo cp examples/haproxy.init /etc/init.d/haproxy
+sudo chmod 755 /etc/init.d/haproxy
+sudo systemctl daemon-reload
+sudo chkconfig haproxy on
+sudo useradd -r haproxy
+haproxy -v
+vim /etc/haproxy/haproxy.cfg
+haproxy -f haproxy.cfg
+systemctl start haproxy
+systemctl status haproxy
